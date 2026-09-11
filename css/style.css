@@ -1,0 +1,305 @@
+:root {
+  --bg: #f2ead6;
+  --surface: #e8dcb8;
+  --ink: #2b2013;
+  --ink-soft: #6b5c40;
+  --moss: #435c34;
+  --moss-dark: #2f4224;
+  --moss-belly: #6e8a55;
+  --amber: #b96b1f;
+  --clay: #8a5a3c;
+  --clay-dark: #6b4327;
+  --clay-light: #a97850;
+  --dew: rgba(43, 32, 19, 0.14);
+  --glass-top: #f8f2df;
+  --glass-bottom: #e6d8ab;
+  --soil: #5c4630;
+  --soil-dark: #40301f;
+  --berry: #a83226;
+  --berry-shine: #d1614a;
+  --berry-leaf: #55703a;
+  --focus: #b96b1f;
+  --overlay-bg: rgba(30, 22, 12, 0.55);
+  --overlay-ink: #f8f2df;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11160d;
+    --surface: #1c2416;
+    --ink: #ecdfc0;
+    --ink-soft: #ab9c78;
+    --moss: #74a355;
+    --moss-dark: #4c6d38;
+    --moss-belly: #93b56f;
+    --amber: #eaa64c;
+    --clay: #a97b52;
+    --clay-dark: #6b4c30;
+    --clay-light: #c79865;
+    --dew: rgba(236, 223, 192, 0.10);
+    --glass-top: #202a19;
+    --glass-bottom: #12180d;
+    --soil: #2a2013;
+    --soil-dark: #171106;
+    --berry: #d9503f;
+    --berry-shine: #ea7a63;
+    --berry-leaf: #7fa858;
+    --focus: #eaa64c;
+    --overlay-bg: rgba(10, 12, 6, 0.62);
+    --overlay-ink: #f4ecd6;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #11160d;
+  --surface: #1c2416;
+  --ink: #ecdfc0;
+  --ink-soft: #ab9c78;
+  --moss: #74a355;
+  --moss-dark: #4c6d38;
+  --moss-belly: #93b56f;
+  --amber: #eaa64c;
+  --clay: #a97b52;
+  --clay-dark: #6b4c30;
+  --clay-light: #c79865;
+  --dew: rgba(236, 223, 192, 0.10);
+  --glass-top: #202a19;
+  --glass-bottom: #12180d;
+  --soil: #2a2013;
+  --soil-dark: #171106;
+  --berry: #d9503f;
+  --berry-shine: #ea7a63;
+  --berry-leaf: #7fa858;
+  --focus: #eaa64c;
+  --overlay-bg: rgba(10, 12, 6, 0.62);
+  --overlay-ink: #f4ecd6;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Libre Franklin", ui-sans-serif, system-ui, sans-serif;
+  display: flex;
+  justify-content: center;
+  padding-inline: 20px;
+  padding-block: 40px;
+  min-height: 100dvh;
+}
+
+.page {
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+}
+
+header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.eyebrow {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--amber);
+}
+
+h1 {
+  font-family: "Fraunces", Georgia, serif;
+  font-weight: 700;
+  font-size: clamp(2rem, 8vw, 2.7rem);
+  margin: 0;
+  text-wrap: balance;
+}
+
+.sub {
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+  max-width: 34ch;
+  margin: 0 auto;
+}
+
+.terrarium {
+  position: relative;
+  width: 100%;
+  padding: 12px;
+  border-radius: 20px;
+  background: linear-gradient(155deg, var(--clay-light), var(--clay) 55%, var(--clay-dark));
+  box-shadow: 0 18px 34px -20px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.glass {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  background: linear-gradient(180deg, var(--glass-top), var(--glass-bottom));
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.15), inset 0 10px 24px -14px rgba(0, 0, 0, 0.35);
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  touch-action: none;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+  padding: 24px;
+  background: var(--overlay-bg);
+  color: var(--overlay-ink);
+}
+
+.overlay[hidden] { display: none; }
+
+.overlay h2 {
+  font-family: "Fraunces", Georgia, serif;
+  font-style: italic;
+  font-weight: 600;
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.overlay p {
+  margin: 0;
+  font-size: 0.88rem;
+  opacity: 0.9;
+  max-width: 26ch;
+}
+
+.go-btn {
+  margin-top: 4px;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--overlay-ink);
+  background: transparent;
+  border: 1px solid var(--overlay-ink);
+  border-radius: 999px;
+  padding: 9px 20px;
+  cursor: pointer;
+}
+
+.go-btn:hover { background: rgba(255, 255, 255, 0.12); }
+
+.placard {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1fr;
+  gap: 0;
+  padding-block: 4px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-inline: 12px;
+  border-left: 1px solid var(--dew);
+}
+
+.stat:first-child { border-left: none; padding-left: 0; }
+
+.stat-label {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.stat-value {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.stat-value.species {
+  font-family: "Fraunces", Georgia, serif;
+  font-style: italic;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.dpad {
+  display: grid;
+  grid-template-columns: repeat(3, 44px);
+  grid-template-rows: repeat(3, 44px);
+  gap: 6px;
+}
+
+.dpad button {
+  grid-column: var(--c);
+  grid-row: var(--r);
+  border: none;
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 0 2px 0 var(--clay-dark);
+}
+
+.dpad button:active { transform: translateY(1px); box-shadow: none; }
+.dpad .up { --c: 2; --r: 1; }
+.dpad .left { --c: 1; --r: 2; }
+.dpad .right { --c: 3; --r: 2; }
+.dpad .down { --c: 2; --r: 3; }
+
+.textbtns { display: flex; gap: 10px; }
+
+.textbtns button {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink);
+  background: none;
+  border: 1px solid var(--dew);
+  border-radius: 999px;
+  padding: 7px 16px;
+  cursor: pointer;
+}
+
+.textbtns button:hover { border-color: var(--amber); color: var(--amber); }
+
+button:focus-visible, .go-btn:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.hint {
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
