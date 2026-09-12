@@ -1,15 +1,36 @@
 (() => {
   "use strict";
 
-  const STORAGE_KEY = "orbit.account";
+  const STORAGE_KEY = "globusiptv.account";
+  const HOST = "http://globusiptv.pro:8080";
 
   const PLANS = [
-    { id: "basic", name: "Basic", price: 0, features: ["1 устройство", "10 ГБ трафика", "Базовая поддержка"] },
-    { id: "pro", name: "Pro", price: 499, features: ["5 устройств", "100 ГБ трафика", "Приоритетная поддержка", "Без рекламы"] },
-    { id: "premium", name: "Premium", price: 999, features: ["Безлимит устройств", "1 ТБ трафика", "Поддержка 24/7", "Ранний доступ к новинкам"] },
+    { id: "start", name: "Старт", price: 0, deviceLimit: 1, features: ["150+ каналов", "1 устройство", "Качество SD/HD"] },
+    { id: "optimal", name: "Оптимальный", price: 499, deviceLimit: 2, features: ["300+ каналов", "2 устройства", "Full HD", "Архив 3 дня"] },
+    { id: "max", name: "Максимум", price: 999, deviceLimit: 5, features: ["500+ каналов", "5 устройств", "4K на поддерживаемых каналах", "Архив 7 дней", "Поддержка 24/7"] },
   ];
 
   const els = {};
+
+  function randomToken(len) {
+    const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+    let out = "";
+    for (let i = 0; i < len; i++) out += chars[Math.floor(Math.random() * chars.length)];
+    return out;
+  }
+
+  function genConnection() {
+    return {
+      login: `u${randomToken(6)}`,
+      password: randomToken(10),
+    };
+  }
+
+  function addMonths(date, n) {
+    const d = new Date(date);
+    d.setMonth(d.getMonth() + n);
+    return d.toISOString();
+  }
 
   const defaultState = () => ({
     loggedIn: false,
@@ -17,13 +38,14 @@
     email: "",
     phone: "",
     balance: 1250,
-    planId: "basic",
-    usageGb: 42,
-    usageLimitGb: 100,
+    planId: "start",
+    activeDevices: 1,
+    expiryDate: addMonths(Date.now(), 1),
     notifyEmail: true,
     notifySms: false,
     theme: "system",
     transactions: null,
+    conn: null,
   });
 
   function loadState() {
@@ -44,12 +66,12 @@
 
   function genTransactions() {
     const items = [
-      { desc: "Оплата тарифа Pro", amount: -499 },
+      { desc: "Оплата тарифа Оптимальный", amount: -499 },
       { desc: "Пополнение баланса", amount: 1000 },
-      { desc: "Оплата тарифа Basic", amount: 0 },
+      { desc: "Оплата тарифа Старт", amount: 0 },
       { desc: "Возврат средств", amount: 150 },
       { desc: "Пополнение баланса", amount: 500 },
-      { desc: "Оплата тарифа Pro", amount: -499 },
+      { desc: "Оплата тарифа Оптимальный", amount: -499 },
     ];
     const now = Date.now();
     return items.map((it, i) => ({
@@ -95,15 +117,20 @@
     els.topAvatar.textContent = initials(state.name);
   }
 
+  function currentPlan() {
+    return PLANS.find(p => p.id === state.planId) || PLANS[0];
+  }
+
   function renderOverview() {
     els.balanceValue.textContent = fmtMoney(state.balance);
-    const plan = PLANS.find(p => p.id === state.planId) || PLANS[0];
+    const plan = currentPlan();
     els.planName.textContent = plan.name;
-    els.planRenew.textContent = plan.price > 0 ? "Продление 1 числа" : "Бесплатный тариф";
+    els.planRenew.textContent = `Активна до ${fmtDate(state.expiryDate)}`;
 
-    const pct = Math.min(100, Math.round((state.usageGb / state.usageLimitGb) * 100));
+    const devices = Math.min(state.activeDevices, plan.deviceLimit);
+    const pct = Math.min(100, Math.round((devices / plan.deviceLimit) * 100));
     els.usageFill.style.width = `${pct}%`;
-    els.usageText.textContent = `${state.usageGb} из ${state.usageLimitGb} ГБ`;
+    els.usageText.textContent = `${devices} из ${plan.deviceLimit} устройств`;
 
     els.recentTx.innerHTML = state.transactions.slice(0, 4).map(txItemHtml).join("");
   }
@@ -145,13 +172,31 @@
 
     els.plans.querySelectorAll("[data-plan]").forEach(btn => {
       btn.addEventListener("click", () => {
-        state.planId = btn.dataset.plan;
+        const plan = PLANS.find(p => p.id === btn.dataset.plan);
+        state.planId = plan.id;
+        state.expiryDate = addMonths(Date.now(), 1);
+        if (plan.price > 0) {
+          state.balance -= plan.price;
+          state.transactions.unshift({ desc: `Оплата тарифа ${plan.name}`, amount: -plan.price, date: new Date().toISOString(), status: "success" });
+        }
         saveState();
         renderOverview();
         renderPlans();
+        renderHistory();
         toast("Тариф обновлён");
       });
     });
+  }
+
+  function renderConnection() {
+    if (!state.conn) {
+      state.conn = genConnection();
+      saveState();
+    }
+    els.connHost.value = HOST;
+    els.connLogin.value = state.conn.login;
+    els.connPassword.value = state.conn.password;
+    els.connM3u.value = `${HOST}/get.php?username=${state.conn.login}&password=${state.conn.password}&type=m3u_plus&output=ts`;
   }
 
   function renderHistory() {
@@ -182,6 +227,7 @@
     renderOverview();
     renderProfile();
     renderPlans();
+    renderConnection();
     renderHistory();
     renderSettings();
   }
@@ -189,7 +235,7 @@
   function showView(name) {
     document.querySelectorAll(".view").forEach(v => v.classList.toggle("active", v.dataset.view === name));
     document.querySelectorAll(".nav-item").forEach(b => b.classList.toggle("active", b.dataset.view === name));
-    const titles = { overview: "Обзор", profile: "Профиль", subscription: "Подписка", history: "История", settings: "Настройки" };
+    const titles = { overview: "Обзор", profile: "Профиль", subscription: "Подписка", connection: "Подключение", history: "История", settings: "Настройки" };
     els.viewTitle.textContent = titles[name] || "";
     els.sidebar.classList.remove("open");
     els.sidebarBackdrop.classList.remove("open");
@@ -204,6 +250,27 @@
     }
     renderAll();
     showView("overview");
+  }
+
+  async function copyToClipboard(text) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      try {
+        const tmp = document.createElement("textarea");
+        tmp.value = text;
+        tmp.style.position = "fixed";
+        tmp.style.opacity = "0";
+        document.body.appendChild(tmp);
+        tmp.select();
+        document.execCommand("copy");
+        document.body.removeChild(tmp);
+        return true;
+      } catch {
+        return false;
+      }
+    }
   }
 
   function bind() {
@@ -279,6 +346,21 @@
       toast("Баланс пополнен на 500 ₽");
     });
 
+    document.querySelectorAll(".btn-copy").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const input = document.getElementById(btn.dataset.copy);
+        const ok = await copyToClipboard(input.value);
+        toast(ok ? "Скопировано" : "Не удалось скопировать");
+      });
+    });
+
+    els.regenConnBtn.addEventListener("click", () => {
+      state.conn = genConnection();
+      saveState();
+      renderConnection();
+      toast("Новые данные для подключения сгенерированы");
+    });
+
     els.deleteAccountBtn.addEventListener("click", () => {
       if (!confirm("Удалить демо-аккаунт и очистить все данные в этом браузере?")) return;
       localStorage.removeItem(STORAGE_KEY);
@@ -292,7 +374,8 @@
       "sidebar", "nav", "logoutBtn", "menuBtn", "viewTitle", "themeBtn", "topAvatar",
       "greeting", "balanceValue", "planName", "planRenew", "usageFill", "usageText",
       "recentTx", "topUpBtn", "profileForm", "profileName", "profileEmail", "profilePhone",
-      "profileSaved", "plans", "txTableBody", "darkModeToggle", "notifyEmail", "notifySms",
+      "profileSaved", "plans", "connHost", "connLogin", "connPassword", "connM3u", "regenConnBtn",
+      "txTableBody", "darkModeToggle", "notifyEmail", "notifySms",
       "deleteAccountBtn", "toast", "sidebarBackdrop",
     ].forEach(id => { els[id] = document.getElementById(id); });
     els.sidebar = document.querySelector(".sidebar");
