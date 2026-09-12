@@ -3,51 +3,60 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Wildwood Arcade</title>
+<title>Terrarium Snake</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito+Sans:wght@400;600;700&family=JetBrains+Mono:wght@600&display=swap">
-<link rel="stylesheet" href="css/hub.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,600&family=Libre+Franklin:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap">
+<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
   <div class="page">
     <header>
-      <div class="eyebrow">Две игры, один лес</div>
-      <h1>Wildwood Arcade</h1>
-      <p class="sub">Выбери, во что играть: тихий стеклянный террариум или беготня по кронам леса.</p>
+      <div class="eyebrow">Экспонат №07</div>
+      <h1>Terrarium Snake</h1>
+      <p class="sub">Проведи змея сквозь стеклянный террариум. Каждая ягода добавляет сегмент — и немного скорости.</p>
     </header>
 
-    <div class="grid">
-      <a class="card" href="platformer/index.html">
-        <div class="art art-run" aria-hidden="true">
-          <span class="sun"></span>
-          <span class="hill"></span>
-          <span class="tree"></span>
-          <span class="fox"></span>
+    <div class="terrarium">
+      <div class="glass">
+        <canvas id="board" width="360" height="360" aria-label="Игровое поле"></canvas>
+        <div class="overlay" id="overlay">
+          <h2 id="overlayTitle">Нажми, чтобы разбудить</h2>
+          <p id="overlayText">Стрелки, WASD или свайп по стеклу.</p>
+          <button class="go-btn" id="overlayBtn">Начать</button>
         </div>
-        <div class="card-body">
-          <span class="tag">Платформер</span>
-          <h2>Canopy Runner</h2>
-          <p>Лис бежит по роще: прыжки по веткам, жуки-враги, жёлуди на счёт и фонарь на финише.</p>
-          <span class="play">Играть &rarr;</span>
-        </div>
-      </a>
+      </div>
+    </div>
 
-      <a class="card" href="snake/index.html">
-        <div class="art art-snake" aria-hidden="true">
-          <span class="glass"></span>
-          <span class="dot"></span>
-          <span class="dot d2"></span>
-          <span class="dot d3"></span>
-          <span class="berry"></span>
-        </div>
-        <div class="card-body">
-          <span class="tag">Аркада</span>
-          <h2>Terrarium Snake</h2>
-          <p>Классическая змейка внутри стеклянного террариума — почва, роса на стекле и ягоды вместо яблок.</p>
-          <span class="play">Играть &rarr;</span>
-        </div>
-      </a>
+    <div class="placard">
+      <div class="stat">
+        <span class="stat-label">Вид</span>
+        <span class="stat-value species">Terrarium Serpent</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Длина</span>
+        <span class="stat-value" id="statLength">3</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Рекорд</span>
+        <span class="stat-value" id="statBest">3</span>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="dpad">
+        <button class="up" aria-label="Вверх" data-dir="0,-1">&#9650;</button>
+        <button class="left" aria-label="Влево" data-dir="-1,0">&#9664;</button>
+        <button class="right" aria-label="Вправо" data-dir="1,0">&#9654;</button>
+        <button class="down" aria-label="Вниз" data-dir="0,1">&#9660;</button>
+      </div>
+      <div class="textbtns">
+        <button id="pauseBtn" type="button">Пауза</button>
+        <button id="restartBtn" type="button">Заново</button>
+      </div>
+      <p class="hint">Пробел — пауза. Почва внизу чисто декоративная — играть можно по всему стеклу.</p>
     </div>
   </div>
+
+  <script src="js/game.js"></script>
 </body>
 </html>
