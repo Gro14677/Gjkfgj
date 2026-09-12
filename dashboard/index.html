@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orbit — Личный кабинет</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Экран входа -->
+  <div class="auth" id="authScreen">
+    <div class="auth-card">
+      <div class="brand">
+        <span class="brand-mark">◎</span>
+        <span class="brand-name">Orbit</span>
+      </div>
+      <h1>Личный кабинет</h1>
+      <p class="auth-sub">Войдите, чтобы управлять подпиской, балансом и настройками аккаунта.</p>
+
+      <form id="loginForm" class="auth-form">
+        <label>
+          <span>Имя</span>
+          <input type="text" id="loginName" placeholder="Например, Алекс" required>
+        </label>
+        <label>
+          <span>Email</span>
+          <input type="email" id="loginEmail" placeholder="you@example.com" required>
+        </label>
+        <label>
+          <span>Пароль</span>
+          <input type="password" id="loginPassword" placeholder="••••••••" required minlength="4">
+        </label>
+        <button type="submit" class="btn btn-primary btn-block">Войти в кабинет</button>
+      </form>
+      <p class="auth-hint">Это демонстрационная форма — данные сохраняются только в вашем браузере.</p>
+    </div>
+  </div>
+
+  <!-- Кабинет -->
+  <div class="app" id="app" hidden>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-mark">◎</span>
+        <span class="brand-name">Orbit</span>
+      </div>
+      <nav class="nav" id="nav">
+        <button class="nav-item active" data-view="overview">
+          <span class="nav-icon">▣</span> Обзор
+        </button>
+        <button class="nav-item" data-view="profile">
+          <span class="nav-icon">◑</span> Профиль
+        </button>
+        <button class="nav-item" data-view="subscription">
+          <span class="nav-icon">◈</span> Подписка
+        </button>
+        <button class="nav-item" data-view="history">
+          <span class="nav-icon">☰</span> История
+        </button>
+        <button class="nav-item" data-view="settings">
+          <span class="nav-icon">⚙</span> Настройки
+        </button>
+      </nav>
+      <button class="btn btn-ghost btn-block" id="logoutBtn">Выйти</button>
+    </aside>
+
+    <div class="main">
+      <header class="topbar">
+        <button class="icon-btn" id="menuBtn" aria-label="Меню">☰</button>
+        <div class="topbar-title" id="viewTitle">Обзор</div>
+        <div class="topbar-actions">
+          <button class="icon-btn" id="themeBtn" aria-label="Тема">◐</button>
+          <div class="avatar" id="topAvatar">A</div>
+        </div>
+      </header>
+
+      <main class="content">
+
+        <!-- Обзор -->
+        <section class="view active" data-view="overview">
+          <p class="greeting" id="greeting">Добрый день!</p>
+
+          <div class="cards-row">
+            <div class="card card-balance">
+              <span class="card-label">Баланс</span>
+              <span class="card-value" id="balanceValue">0 ₽</span>
+              <button class="btn btn-light" id="topUpBtn">Пополнить</button>
+            </div>
+            <div class="card">
+              <span class="card-label">Текущий тариф</span>
+              <span class="card-value" id="planName">Basic</span>
+              <span class="card-note" id="planRenew">Продление 1 числа</span>
+            </div>
+            <div class="card">
+              <span class="card-label">Использовано в этом месяце</span>
+              <div class="progress"><div class="progress-fill" id="usageFill" style="width:42%"></div></div>
+              <span class="card-note" id="usageText">42 из 100 ГБ</span>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <h2>Последние операции</h2>
+              <button class="link-btn" data-goto="history">Все операции →</button>
+            </div>
+            <ul class="tx-list" id="recentTx"></ul>
+          </div>
+        </section>
+
+        <!-- Профиль -->
+        <section class="view" data-view="profile">
+          <div class="panel panel-narrow">
+            <h2>Данные профиля</h2>
+            <form id="profileForm" class="form-grid">
+              <label>
+                <span>Имя</span>
+                <input type="text" id="profileName" required>
+              </label>
+              <label>
+                <span>Email</span>
+                <input type="email" id="profileEmail" required>
+              </label>
+              <label>
+                <span>Телефон</span>
+                <input type="tel" id="profilePhone" placeholder="+7 900 000-00-00">
+              </label>
+              <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+              <span class="save-note" id="profileSaved" hidden>Сохранено ✓</span>
+            </form>
+          </div>
+        </section>
+
+        <!-- Подписка -->
+        <section class="view" data-view="subscription">
+          <div class="panel">
+            <h2>Тарифные планы</h2>
+            <div class="plans" id="plans"></div>
+          </div>
+        </section>
+
+        <!-- История -->
+        <section class="view" data-view="history">
+          <div class="panel">
+            <h2>История операций</h2>
+            <div class="table-wrap">
+              <table class="tx-table">
+                <thead>
+                  <tr><th>Дата</th><th>Описание</th><th>Сумма</th><th>Статус</th></tr>
+                </thead>
+                <tbody id="txTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- Настройки -->
+        <section class="view" data-view="settings">
+          <div class="panel panel-narrow">
+            <h2>Оформление</h2>
+            <div class="setting-row">
+              <div>
+                <strong>Тёмная тема</strong>
+                <p>Переключение между светлым и тёмным оформлением.</p>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="darkModeToggle">
+                <span class="switch-track"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="panel panel-narrow">
+            <h2>Уведомления</h2>
+            <div class="setting-row">
+              <div><strong>Email-уведомления</strong><p>Счета, продление подписки, новости.</p></div>
+              <label class="switch">
+                <input type="checkbox" id="notifyEmail" checked>
+                <span class="switch-track"></span>
+              </label>
+            </div>
+            <div class="setting-row">
+              <div><strong>SMS-уведомления</strong><p>Важные предупреждения по аккаунту.</p></div>
+              <label class="switch">
+                <input type="checkbox" id="notifySms">
+                <span class="switch-track"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="panel panel-narrow">
+            <h2>Опасная зона</h2>
+            <div class="setting-row">
+              <div><strong>Удалить аккаунт</strong><p>Полностью очистит демо-данные в этом браузере.</p></div>
+              <button class="btn btn-danger" id="deleteAccountBtn">Удалить</button>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" hidden></div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
